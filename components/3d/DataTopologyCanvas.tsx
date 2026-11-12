@@ -1,346 +1,303 @@
 "use client"
 
-import React, { useRef, useMemo, useState, useEffect } from "react"
-import { Canvas, useFrame } from "@react-three/fiber"
-import { Float, Text } from "@react-three/drei"
+import React, { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
-// Pipeline stages in 3D space
 const STAGES = [
   {
     name: "RAW INGESTION",
     sub: "Kafka / APIs / S3",
-    pos: [-2.8, 1.2, 0] as [number, number, number],
-    color: "#22D3EE",
+    pos: new THREE.Vector3(-3.2, 1.2, 0),
+    color: 0x22d3ee,
+    colorHex: "#22D3EE",
   },
   {
     name: "DISTRIBUTED ETL",
     sub: "Talend / Control-M / dbt",
-    pos: [-0.9, -0.6, 0.4] as [number, number, number],
-    color: "#6366F1",
+    pos: new THREE.Vector3(-1.0, -0.7, 0.4),
+    color: 0x6366f1,
+    colorHex: "#6366F1",
   },
   {
     name: "DATA WAREHOUSE",
     sub: "Snowflake / Lakehouse",
-    pos: [1.1, 0.9, -0.3] as [number, number, number],
-    color: "#818CF8",
+    pos: new THREE.Vector3(1.1, 0.9, -0.3),
+    color: 0x818cf8,
+    colorHex: "#818CF8",
   },
   {
     name: "AI WORKFLOWS",
     sub: "LLM / Analytics / BI",
-    pos: [2.9, -0.7, 0.2] as [number, number, number],
-    color: "#10B981",
+    pos: new THREE.Vector3(3.2, -0.8, 0.2),
+    color: 0x10b981,
+    colorHex: "#10B981",
   },
 ]
 
-// Animated data packet flowing along a spline curve
-function FlowingPacket({
-  curve,
-  speed,
-  offset,
-  color,
-}: {
-  curve: THREE.CatmullRomCurve3
-  speed: number
-  offset: number
-  color: string
-}) {
-  const meshRef = useRef<THREE.Mesh>(null)
-
-  useFrame(({ clock }) => {
-    if (!meshRef.current) return
-    const t = (clock.getElapsedTime() * speed + offset) % 1
-    const pos = curve.getPointAt(t)
-    meshRef.current.position.copy(pos)
-  })
-
-  return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[0.07, 16, 16]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={3.5}
-        roughness={0.2}
-      />
-    </mesh>
-  )
-}
-
-// Spline connection between two nodes with animated pulses
-function PipelineSpline({
-  start,
-  end,
-  color,
-}: {
-  start: [number, number, number]
-  end: [number, number, number]
-  color: string
-}) {
-  const { curve, linePoints } = useMemo(() => {
-    const vStart = new THREE.Vector3(...start)
-    const vEnd = new THREE.Vector3(...end)
-    const vMid = new THREE.Vector3()
-      .addVectors(vStart, vEnd)
-      .multiplyScalar(0.5)
-      .add(new THREE.Vector3(0, 0.6, 0.3)) // Arch upward
-
-    const catmull = new THREE.CatmullRomCurve3([vStart, vMid, vEnd])
-    const points = catmull.getPoints(50)
-    return { curve: catmull, linePoints: points }
-  }, [start, end])
-
-  const lineGeometry = useMemo(() => {
-    return new THREE.BufferGeometry().setFromPoints(linePoints)
-  }, [linePoints])
-
-  return (
-    <group>
-      {/* Curved Pipe Track */}
-      {/* @ts-ignore */}
-      <line geometry={lineGeometry}>
-        <lineBasicMaterial
-          color={color}
-          opacity={0.35}
-          transparent
-          linewidth={1.5}
-        />
-      </line>
-
-      {/* Multiple moving packets */}
-      <FlowingPacket curve={curve} speed={0.25} offset={0} color={color} />
-      <FlowingPacket curve={curve} speed={0.25} offset={0.35} color="#22D3EE" />
-      <FlowingPacket curve={curve} speed={0.25} offset={0.7} color="#FAFAFA" />
-    </group>
-  )
-}
-
-// Architectural Cluster Node
-function ClusterNode({
-  stage,
-  isHovered,
-  onHover,
-}: {
-  stage: (typeof STAGES)[0]
-  isHovered: boolean
-  onHover: (hovered: boolean) => void
-}) {
-  const outerRingRef = useRef<THREE.Mesh>(null)
-
-  useFrame((_, delta) => {
-    if (outerRingRef.current) {
-      outerRingRef.current.rotation.z += delta * 0.8
-      outerRingRef.current.rotation.x += delta * 0.4
-    }
-  })
-
-  return (
-    <group
-      position={stage.pos}
-      onPointerOver={() => onHover(true)}
-      onPointerOut={() => onHover(false)}
-    >
-      {/* Core Node */}
-      <mesh>
-        <octahedronGeometry args={[isHovered ? 0.32 : 0.26, 0]} />
-        <meshStandardMaterial
-          color={stage.color}
-          emissive={stage.color}
-          emissiveIntensity={isHovered ? 2.8 : 1.6}
-          roughness={0.2}
-          wireframe={!isHovered}
-        />
-      </mesh>
-
-      {/* Rotating Gyroscopic Ring */}
-      <mesh ref={outerRingRef}>
-        <torusGeometry args={[0.42, 0.02, 16, 32]} />
-        <meshBasicMaterial
-          color={stage.color}
-          transparent
-          opacity={isHovered ? 0.9 : 0.45}
-        />
-      </mesh>
-
-      {/* 3D Label */}
-      <Text
-        position={[0, -0.62, 0]}
-        fontSize={0.16}
-        color="#FAFAFA"
-        anchorX="center"
-        anchorY="top"
-      >
-        {stage.name}
-      </Text>
-      <Text
-        position={[0, -0.84, 0]}
-        fontSize={0.11}
-        color="#71717A"
-        anchorX="center"
-        anchorY="top"
-      >
-        {stage.sub}
-      </Text>
-    </group>
-  )
-}
-
-// Background Particle Cloud
-function TelemetryPointField() {
-  const count = 120
-  const points = useMemo(() => {
-    const p = new Float32Array(count * 3)
-    for (let i = 0; i < count * 3; i += 3) {
-      p[i] = (Math.random() - 0.5) * 12
-      p[i + 1] = (Math.random() - 0.5) * 8
-      p[i + 2] = (Math.random() - 0.5) * 6 - 1
-    }
-    return p
-  }, [count])
-
-  const pointsRef = useRef<THREE.Points>(null)
-
-  useFrame((_, delta) => {
-    if (pointsRef.current) {
-      pointsRef.current.rotation.y += delta * 0.03
-    }
-  })
-
-  return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[points, 3]}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.04}
-        color="#818CF8"
-        transparent
-        opacity={0.4}
-        sizeAttenuation
-      />
-    </points>
-  )
-}
-
-// Scene Root with gentle mouse parallax
-function SceneTopology() {
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
-  const groupRef = useRef<THREE.Group>(null)
-
-  useFrame(({ pointer }) => {
-    if (!groupRef.current) return
-    // Subtle, smooth camera/group parallax following cursor
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(
-      groupRef.current.rotation.y,
-      pointer.x * 0.25,
-      0.05
-    )
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(
-      groupRef.current.rotation.x,
-      -pointer.y * 0.18,
-      0.05
-    )
-  })
-
-  return (
-    <group ref={groupRef}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 8, 5]} intensity={1.2} />
-      <pointLight position={[0, 0, 2]} intensity={2} color="#6366F1" />
-
-      <TelemetryPointField />
-
-      {/* Spline Connections */}
-      <PipelineSpline
-        start={STAGES[0].pos}
-        end={STAGES[1].pos}
-        color="#22D3EE"
-      />
-      <PipelineSpline
-        start={STAGES[1].pos}
-        end={STAGES[2].pos}
-        color="#6366F1"
-      />
-      <PipelineSpline
-        start={STAGES[2].pos}
-        end={STAGES[3].pos}
-        color="#10B981"
-      />
-
-      {/* Cluster Nodes */}
-      {STAGES.map((stage, idx) => (
-        <Float key={stage.name} speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
-          <ClusterNode
-            stage={stage}
-            isHovered={hoveredIdx === idx}
-            onHover={(h) => setHoveredIdx(h ? idx : null)}
-          />
-        </Float>
-      ))}
-    </group>
-  )
-}
-
 export default function DataTopologyCanvas() {
-  const [hasWebGL, setHasWebGL] = useState(true)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [activeStage, setActiveStage] = useState<number | null>(null)
 
   useEffect(() => {
-    try {
-      const canvas = document.createElement("canvas")
-      const gl =
-        canvas.getContext("webgl") || canvas.getContext("experimental-webgl")
-      if (!gl) setHasWebGL(false)
-    } catch {
-      setHasWebGL(false)
+    const container = containerRef.current
+    const canvas = canvasRef.current
+    if (!container || !canvas) return
+
+    let animationFrameId: number
+    const scene = new THREE.Scene()
+
+    // Camera setup
+    const camera = new THREE.PerspectiveCamera(
+      48,
+      container.clientWidth / container.clientHeight,
+      0.1,
+      100
+    )
+    camera.position.set(0, 0, 5.8)
+
+    // Renderer setup
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: "high-performance",
+    })
+    renderer.setSize(container.clientWidth, container.clientHeight)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
+    scene.add(ambientLight)
+
+    const pointLight = new THREE.PointLight(0x6366f1, 3, 20)
+    pointLight.position.set(0, 0, 3)
+    scene.add(pointLight)
+
+    const topLight = new THREE.DirectionalLight(0x22d3ee, 1.5)
+    topLight.position.set(5, 8, 4)
+    scene.add(topLight)
+
+    // Background Particle Cloud
+    const particleCount = 140
+    const particleGeo = new THREE.BufferGeometry()
+    const particlePos = new Float32Array(particleCount * 3)
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      particlePos[i] = (Math.random() - 0.5) * 14
+      particlePos[i + 1] = (Math.random() - 0.5) * 8
+      particlePos[i + 2] = (Math.random() - 0.5) * 6 - 1
+    }
+    particleGeo.setAttribute("position", new THREE.BufferAttribute(particlePos, 3))
+    const particleMat = new THREE.PointsMaterial({
+      color: 0x818cf8,
+      size: 0.04,
+      transparent: true,
+      opacity: 0.45,
+    })
+    const particleCloud = new THREE.Points(particleGeo, particleMat)
+    scene.add(particleCloud)
+
+    // Architectural Nodes & Gyroscopic Rings
+    const nodeMeshes: THREE.Mesh[] = []
+    const ringMeshes: THREE.Mesh[] = []
+
+    STAGES.forEach((stage) => {
+      // Octahedron core
+      const coreGeo = new THREE.OctahedronGeometry(0.28, 0)
+      const coreMat = new THREE.MeshStandardMaterial({
+        color: stage.color,
+        emissive: stage.color,
+        emissiveIntensity: 1.8,
+        wireframe: true,
+      })
+      const coreMesh = new THREE.Mesh(coreGeo, coreMat)
+      coreMesh.position.copy(stage.pos)
+      scene.add(coreMesh)
+      nodeMeshes.push(coreMesh)
+
+      // Outer Torus Ring
+      const ringGeo = new THREE.TorusGeometry(0.44, 0.02, 16, 32)
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: stage.color,
+        transparent: true,
+        opacity: 0.6,
+      })
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat)
+      ringMesh.position.copy(stage.pos)
+      scene.add(ringMesh)
+      ringMeshes.push(ringMesh)
+    })
+
+    // Spline Curves and Flowing Packets
+    interface PipelineConnection {
+      curve: THREE.CatmullRomCurve3
+      packets: { mesh: THREE.Mesh; speed: number; offset: number }[]
+    }
+
+    const connections: PipelineConnection[] = []
+
+    for (let i = 0; i < STAGES.length - 1; i++) {
+      const vStart = STAGES[i].pos
+      const vEnd = STAGES[i + 1].pos
+      const vMid = new THREE.Vector3()
+        .addVectors(vStart, vEnd)
+        .multiplyScalar(0.5)
+        .add(new THREE.Vector3(0, 0.6, 0.3))
+
+      const curve = new THREE.CatmullRomCurve3([vStart, vMid, vEnd])
+      const points = curve.getPoints(50)
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(points)
+      const lineMat = new THREE.LineBasicMaterial({
+        color: STAGES[i].color,
+        transparent: true,
+        opacity: 0.35,
+      })
+      const line = new THREE.Line(lineGeo, lineMat)
+      scene.add(line)
+
+      // Flowing Packets along spline
+      const packets: { mesh: THREE.Mesh; speed: number; offset: number }[] = []
+      const packetColors = [STAGES[i].color, 0x22d3ee, 0xfafafa]
+
+      packetColors.forEach((col, pIdx) => {
+        const pGeo = new THREE.SphereGeometry(0.065, 16, 16)
+        const pMat = new THREE.MeshStandardMaterial({
+          color: col,
+          emissive: col,
+          emissiveIntensity: 3.5,
+          roughness: 0.2,
+        })
+        const pMesh = new THREE.Mesh(pGeo, pMat)
+        scene.add(pMesh)
+        packets.push({
+          mesh: pMesh,
+          speed: 0.22,
+          offset: pIdx * 0.33,
+        })
+      })
+
+      connections.push({ curve, packets })
+    }
+
+    // Mouse Parallax tracking
+    let targetRotationX = 0
+    let targetRotationY = 0
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect()
+      const x = ((e.clientX - rect.left) / rect.width) * 2 - 1
+      const y = -(((e.clientY - rect.top) / rect.height) * 2 - 1)
+      targetRotationY = x * 0.22
+      targetRotationX = -y * 0.16
+    }
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true })
+
+    // Resize Handler
+    const handleResize = () => {
+      if (!container) return
+      const width = container.clientWidth
+      const height = container.clientHeight
+      camera.aspect = width / height
+      camera.updateProjectionMatrix()
+      renderer.setSize(width, height)
+    }
+
+    const resizeObserver = new ResizeObserver(handleResize)
+    resizeObserver.observe(container)
+
+    // Render loop
+    const clock = new THREE.Clock()
+
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate)
+      const elapsedTime = clock.getElapsedTime()
+      const delta = clock.getDelta()
+
+      // Smooth camera parallax interpolation
+      scene.rotation.y += (targetRotationY - scene.rotation.y) * 0.05
+      scene.rotation.x += (targetRotationX - scene.rotation.x) * 0.05
+
+      // Rotate particle cloud gently
+      particleCloud.rotation.y = elapsedTime * 0.03
+
+      // Rotate nodes and rings
+      ringMeshes.forEach((ring, idx) => {
+        ring.rotation.z += 0.015 * (idx % 2 === 0 ? 1 : -1)
+        ring.rotation.x += 0.01
+      })
+
+      nodeMeshes.forEach((node, idx) => {
+        node.rotation.y = elapsedTime * 0.6
+        // Gentle bobbing float
+        node.position.y = STAGES[idx].pos.y + Math.sin(elapsedTime * 1.5 + idx) * 0.06
+        ringMeshes[idx].position.y = node.position.y
+      })
+
+      // Move data packets along splines
+      connections.forEach((conn) => {
+        conn.packets.forEach((p) => {
+          const t = (elapsedTime * p.speed + p.offset) % 1
+          const pos = conn.curve.getPointAt(t)
+          p.mesh.position.copy(pos)
+        })
+      })
+
+      renderer.render(scene, camera)
+    }
+
+    animate()
+
+    return () => {
+      cancelAnimationFrame(animationFrameId)
+      window.removeEventListener("mousemove", handleMouseMove)
+      resizeObserver.disconnect()
+      renderer.dispose()
+      particleGeo.dispose()
+      particleMat.dispose()
     }
   }, [])
 
-  if (!hasWebGL) {
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center border border-white/10 rounded-2xl bg-white/[0.02] p-8 text-center font-mono">
-        <div className="w-12 h-12 rounded-full border border-indigo-500/40 flex items-center justify-center text-indigo-400 mb-4 animate-pulse">
-          ⚡
-        </div>
-        <p className="text-sm text-zinc-300 font-semibold mb-1">
-          LIVING 3D ETL TOPOLOGY
-        </p>
-        <p className="text-xs text-zinc-500">
-          Raw Ingestion ➔ Distributed ETL ➔ Snowflake Lakehouse ➔ AI Workflows
-        </p>
-      </div>
-    )
-  }
-
   return (
-    <div className="relative w-full h-[450px] lg:h-[580px] rounded-2xl overflow-hidden border border-white/[0.08] bg-[#0A0A0F]/60 backdrop-blur-xl">
+    <div
+      ref={containerRef}
+      className="relative w-full h-[450px] lg:h-[580px] rounded-2xl overflow-hidden border border-white/[0.08] bg-[#0A0A0F]/60 backdrop-blur-xl group"
+    >
       {/* Top telemetry HUD bar */}
       <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between text-[11px] font-mono text-zinc-400 pointer-events-none">
-        <div className="flex items-center gap-2 px-2.5 py-1 rounded bg-black/40 border border-white/5 backdrop-blur-md">
+        <div className="flex items-center gap-2 px-2.5 py-1 rounded bg-black/50 border border-white/10 backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>{"LIVE PIPELINE TOPOLOGY // 60 FPS"}</span>
+          <span>LIVE PIPELINE TOPOLOGY // 60 FPS</span>
         </div>
         <div className="hidden sm:flex items-center gap-4 text-zinc-500">
-          <span>PARALLAX: ACTIVE</span>
+          <span>WebGL: ACTIVE</span>
           <span>NODES: 04</span>
           <span>LATENCY: 12ms</span>
         </div>
       </div>
 
-      <Canvas
-        camera={{ position: [0, 0, 5.2], fov: 48 }}
-        dpr={[1, 1.5]}
-        gl={{ antialias: true, alpha: true }}
-      >
-        <SceneTopology />
-      </Canvas>
+      {/* WebGL Canvas */}
+      <canvas ref={canvasRef} className="w-full h-full block" />
 
-      {/* Bottom telemetry readout footer */}
-      <div className="absolute bottom-3 left-4 right-4 z-10 flex items-center justify-between text-[10px] font-mono text-zinc-500 pointer-events-none border-t border-white/5 pt-2">
-        <span>FLOW: INGESTION ➔ ETL ➔ WAREHOUSE ➔ AI</span>
-        <span>INTERACTIVE: HOVER NODES</span>
+      {/* Bottom Interactive Stage Badges */}
+      <div className="absolute bottom-3 left-4 right-4 z-10 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2 text-[10px] font-mono">
+        <div className="flex items-center gap-2">
+          {STAGES.map((st, i) => (
+            <div
+              key={st.name}
+              onMouseEnter={() => setActiveStage(i)}
+              onMouseLeave={() => setActiveStage(null)}
+              className="flex items-center gap-1 px-2 py-0.5 rounded bg-white/[0.03] border border-white/[0.08] text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: st.colorHex }}
+              />
+              <span className="hidden sm:inline">{st.name}</span>
+            </div>
+          ))}
+        </div>
+        <span className="text-zinc-500">FLOW: INGESTION &rarr; ETL &rarr; DWH &rarr; AI</span>
       </div>
     </div>
   )
