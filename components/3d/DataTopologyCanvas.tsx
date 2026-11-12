@@ -169,7 +169,6 @@ function ClusterNode({
         color="#FAFAFA"
         anchorX="center"
         anchorY="top"
-        font="https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_al061-mw.woff"
       >
         {stage.name}
       </Text>
@@ -179,7 +178,6 @@ function ClusterNode({
         color="#71717A"
         anchorX="center"
         anchorY="top"
-        font="https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_al061-mw.woff"
       >
         {stage.sub}
       </Text>
