@@ -3,58 +3,116 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: "Inter", "San Francisco", "SF Pro Text", -apple-system, system-ui, sans-serif;
-  --scrollbar-track: #0f172a;
-  --scrollbar-thumb: #0ea5e9;
+  --canvas-bg: #060608;
+  --surface-elevated: #0E0E12;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(99, 102, 241, 0.45);
+  --accent-indigo: #6366F1;
+  --accent-cyan: #22D3EE;
+  --accent-emerald: #10B981;
 }
 
 * {
   box-sizing: border-box;
-  font-family: var(--font-sans);
 }
 
 html {
+  background-color: #060608;
+  color: #FAFAFA;
   scroll-behavior: smooth;
-  scrollbar-gutter: stable;
-}
-
-body::-webkit-scrollbar {
-  width: 10px;
-}
-
-body::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
-}
-
-body::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: 5px;
-}
-
-body::-webkit-scrollbar-thumb:hover {
-  background: #06b6d4;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  -ms-overflow-style: none;
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  background-color: #060608;
+  color: #FAFAFA;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
 }
 
-@layer components {
-  .btn-primary {
-    @apply px-6 py-3 bg-cyber-blue hover:bg-cyan-600 text-data-bg font-semibold rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/50 uppercase text-sm;
-  }
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
 
-  .btn-secondary {
-    @apply px-6 py-3 bg-transparent hover:bg-data-card font-semibold rounded-lg border border-cyber-blue text-cyber-blue transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/30 uppercase text-sm;
-  }
+::-webkit-scrollbar-track {
+  background: #060608;
+}
 
-  .card-glow {
-    @apply hover:border-cyber-blue hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300;
-  }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
 
-  .text-gradient {
-    @apply bg-gradient-to-r from-cyber-blue to-electric-purple bg-clip-text text-transparent;
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.5);
+}
+
+/* Selection highlight */
+::selection {
+  background: rgba(99, 102, 241, 0.35);
+  color: #FAFAFA;
+}
+
+/* Bento Surface with Glass Effect */
+.bento-surface {
+  background: rgba(14, 14, 18, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.bento-surface:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.12);
+}
+
+/* Radial spotlight card helper */
+.spotlight-card {
+  position: relative;
+  border-radius: 1rem;
+  background: rgba(14, 14, 18, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  top: var(--mouse-y, -1000px);
+  left: var(--mouse-x, -1000px);
+  transform: translate(-50%, -50%);
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(34, 211, 238, 0.05) 40%, transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+}
+
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+/* Architectural Grid Pattern */
+.bg-grid-architectural {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Noise overlay */
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
 }

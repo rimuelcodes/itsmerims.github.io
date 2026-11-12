@@ -7,13 +7,13 @@ import ContactSection from "components/ContactSection"
 
 export default function Home() {
   return (
-    <main className="bg-gradient-to-b from-data-bg via-slate-900 to-data-bg">
+    <>
       <HeroSection />
       <AboutSection />
       <ExperienceTimeline />
       <SkillsGrid />
       <ProjectSection />
       <ContactSection />
-    </main>
+    </>
   )
 }

@@ -1,115 +1,236 @@
-'use client'
+"use client"
 
-import React from 'react'
-import { FaCircle } from 'react-icons/fa'
+import React, { useEffect, useRef } from "react"
+import { motion } from "framer-motion"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { Briefcase, Calendar, MapPin, CheckCircle2, ChevronRight, Terminal } from "lucide-react"
 
-const experiences = [
-    {
-        company: "Macquarie",
-        position: "Data Engineer - Data DevOps Team",
-        period: "2024 - Present",
-        location: "Manila, Philippines",
-        isActive: true,
-        achievements: [
-            "Architected scalable ETL pipelines using Control-M and Talend for data integration",
-            "Optimized data workflows reducing pipeline execution time by 40%",
-            "Designed automated data quality monitoring using Python and SQL",
-            "Collaborated with AI teams to implement ML-driven data preprocessing",
-        ],
-        techStack: ["Python", "SQL", "Snowflake", "Control-M", "Talend", "dbt", "Power BI", "Git"],
-    },
-    {
-        company: "Accenture",
-        position: "Data Engineer Associate - Talend Integration Specialist",
-        period: "2022 - 2024",
-        location: "Manila, Philippines",
-        isActive: false,
-        achievements: [
-            "Delivered 15+ Talend integration projects for Fortune 500 clients",
-            "Built complex ETL workflows handling 10M+ daily data transactions",
-            "Mentored junior developers on data engineering best practices",
-            "Reduced data integration costs by 30% through optimization",
-        ],
-        techStack: ["Talend", "SQL", "Python", "Snowflake", "Git", "Control-M"],
-    },
-]
-
-const ExperienceTimeline = () => {
-    return (
-        <section className='py-20 bg-data-bg' id='experience'>
-            <div className="max-w-6xl mx-auto px-4 sm:px-6">
-                <div className="mb-16">
-                    <h2 className="text-white text-center font-bold text-5xl mb-4">
-                        Experience
-                    </h2>
-                    <div className="w-24 h-1 bg-gradient-to-r from-cyber-blue to-electric-purple mx-auto rounded-full" />
-                </div>
-
-                <div className="space-y-12">
-                    {experiences.map((exp, index) => (
-                        <div key={index} className="relative">
-                            {/* Timeline dot and line */}
-                            <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 top-0">
-                                <div className={`w-4 h-4 rounded-full border-4 ${exp.isActive ? 'bg-cyber-blue border-cyber-blue shadow-lg shadow-cyan-500/50' : 'bg-data-card border-cyber-blue'}`} />
-                                {index !== experiences.length - 1 && (
-                                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-1 h-24 md:h-32 bg-gradient-to-b from-cyber-blue to-data-border" />
-                                )}
-                            </div>
-
-                            {/* Content */}
-                            <div className={`ml-12 md:ml-0 ${index % 2 === 0 ? 'md:mr-auto md:w-5/12' : 'md:ml-auto md:w-5/12'}`}>
-                                <div className="bg-data-card border border-data-border rounded-lg p-8 hover:border-cyber-blue hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
-                                    {/* Header */}
-                                    <div className="flex items-start justify-between mb-2">
-                                        <div>
-                                            <h3 className="text-cyber-blue font-bold text-xl">{exp.position}</h3>
-                                            <p className="text-electric-purple font-semibold">{exp.company}</p>
-                                        </div>
-                                        {exp.isActive && (
-                                            <span className="inline-block px-3 py-1 bg-cyber-blue/20 text-cyber-blue text-sm rounded-full font-semibold">
-                                                Current
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Period and Location */}
-                                    <div className="text-data-text-secondary text-sm mb-4 space-y-1">
-                                        <p>📅 {exp.period}</p>
-                                        <p>📍 {exp.location}</p>
-                                    </div>
-
-                                    {/* Achievements */}
-                                    <div className="mb-6">
-                                        <h4 className="text-white font-semibold mb-3 text-sm">Key Achievements:</h4>
-                                        <ul className="space-y-2">
-                                            {exp.achievements.map((achievement, idx) => (
-                                                <li key={idx} className="text-data-text-secondary text-sm flex items-start">
-                                                    <span className="text-cyber-blue mr-3 flex-shrink-0">▸</span>
-                                                    <span>{achievement}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-
-                                    {/* Tech Stack */}
-                                    <div>
-                                        <h4 className="text-white font-semibold mb-2 text-sm">Tech Stack:</h4>
-                                        <div className="flex flex-wrap gap-2">
-                                            {exp.techStack.map((tech, idx) => (
-                                                <span key={idx} className="px-3 py-1 bg-cyber-blue/10 border border-cyber-blue/30 text-cyber-blue text-xs rounded-full font-medium">
-                                                    {tech}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    )
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger)
 }
 
-export default ExperienceTimeline
+const EXPERIENCES = [
+  {
+    company: "Macquarie Group",
+    division: "Data DevOps Team",
+    position: "Data Engineer — ETL Architect",
+    period: "2024 — PRESENT",
+    location: "Manila, Philippines",
+    isActive: true,
+    impactHighlight: "40% Runtime Reduction across Core Financial Workflows",
+    achievements: [
+      "Architected fault-tolerant ETL pipelines using Control-M and Talend for enterprise financial data ingestion and orchestration.",
+      "Optimized complex SQL DAG workflows in Snowflake, achieving a 40% reduction in end-to-end pipeline execution runtime.",
+      "Engineered automated telemetry and data validation checks in Python and SQL, guaranteeing deterministic SLA compliance.",
+      "Collaborated with AI & quantitative analytics squads to integrate automated feature preprocessing for machine learning workloads.",
+    ],
+    techStack: [
+      "Python",
+      "SQL",
+      "Snowflake",
+      "Control-M",
+      "Talend",
+      "dbt",
+      "Power BI",
+      "Git",
+    ],
+  },
+  {
+    company: "Accenture",
+    division: "Enterprise Data & AI Practice",
+    position: "Data Engineer Associate — Talend Specialist",
+    period: "2022 — 2024",
+    location: "Manila, Philippines",
+    isActive: false,
+    impactHighlight: "Delivered 15+ Integration Deployments for Global Fortune 500s",
+    achievements: [
+      "Delivered 15+ large-scale Talend integration pipelines for multi-regional Fortune 500 client infrastructures.",
+      "Engineered robust ETL architectures processing over 10M+ daily transactional records with zero unhandled dropouts.",
+      "Mentored junior data developers on modular pipeline standards, schema validation, and defensive SQL design.",
+      "Cut client cloud compute and integration costs by 30% through targeted pipeline refactoring and warehouse query optimization.",
+    ],
+    techStack: [
+      "Talend",
+      "SQL",
+      "Python",
+      "Snowflake",
+      "Git",
+      "Control-M",
+    ],
+  },
+]
+
+export default function ExperienceTimeline() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const beamRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!containerRef.current || !beamRef.current) return
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        beamRef.current,
+        { height: "0%" },
+        {
+          height: "100%",
+          ease: "none",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 70%",
+            end: "bottom 80%",
+            scrub: 0.8,
+          },
+        }
+      )
+    }, containerRef)
+
+    return () => ctx.revert()
+  }, [])
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    e.currentTarget.style.setProperty("--mouse-x", `${x}px`)
+    e.currentTarget.style.setProperty("--mouse-y", `${y}px`)
+  }
+
+  return (
+    <section id="experience" className="py-24 px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto relative z-10">
+      {/* Section Header */}
+      <div className="flex flex-col items-start mb-20">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/[0.05] text-xs font-mono text-indigo-400 mb-3">
+          <Briefcase className="w-3.5 h-3.5 text-indigo-400" />
+          <span>{"MODULE 02 // CHRONOLOGICAL LOGS"}</span>
+        </div>
+        <h2 className="text-3xl sm:text-5xl font-display font-bold text-white tracking-tight">
+          Enterprise Track Record & Proven Execution
+        </h2>
+        <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mt-3 font-sans">
+          Proven history designing, deploying, and maintaining high-availability data infrastructure across global banking and enterprise technology consulting.
+        </p>
+      </div>
+
+      {/* Vertical Spine Container */}
+      <div ref={containerRef} className="relative">
+        {/* Central Ambient Vertical Guide Line */}
+        <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-white/[0.07] -translate-x-1/2" />
+
+        {/* GSAP Scroll-Scrubbed Glowing Beam */}
+        <div
+          ref={beamRef}
+          className="absolute left-4 md:left-1/2 top-0 w-[2px] bg-gradient-to-b from-indigo-500 via-cyan-400 to-indigo-500 -translate-x-1/2 shadow-[0_0_12px_#6366F1]"
+          style={{ height: "0%" }}
+        />
+
+        <div className="space-y-16">
+          {EXPERIENCES.map((exp, index) => {
+            const isEven = index % 2 === 0
+            return (
+              <div
+                key={exp.company}
+                className="relative flex flex-col md:flex-row items-start md:items-center"
+              >
+                {/* Center Node Indicator */}
+                <div className="absolute left-4 md:left-1/2 -translate-x-1/2 z-20 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-[#0E0E12] border border-white/20 flex items-center justify-center shadow-lg shadow-black">
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${
+                        exp.isActive
+                          ? "bg-emerald-400 animate-ping"
+                          : "bg-indigo-400"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                {/* Card placement: left or right */}
+                <div
+                  className={`w-full md:w-1/2 pl-12 md:pl-0 ${
+                    isEven ? "md:pr-12 md:text-left" : "md:pl-12 md:ml-auto"
+                  }`}
+                >
+                  <div
+                    onMouseMove={handleMouseMove}
+                    className="spotlight-card p-6 sm:p-8 relative group"
+                  >
+                    <div className="relative z-10">
+                      {/* Top Metadata Header */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-white tracking-wide uppercase px-2.5 py-0.5 rounded bg-white/[0.05] border border-white/10">
+                            {exp.company}
+                          </span>
+                          <span className="text-xs font-mono text-zinc-500">
+                            {exp.division}
+                          </span>
+                        </div>
+                        {exp.isActive && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-mono text-emerald-400 font-semibold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            CURRENT
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Role Title */}
+                      <h3 className="text-xl sm:text-2xl font-display font-bold text-white mb-2">
+                        {exp.position}
+                      </h3>
+
+                      {/* Period & Location */}
+                      <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-zinc-400 mb-6">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+                          <span>{exp.period}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+                          <span>{exp.location}</span>
+                        </div>
+                      </div>
+
+                      {/* Impact Highlight Banner */}
+                      <div className="mb-6 p-3 rounded-lg bg-indigo-500/[0.07] border border-indigo-500/20 text-xs font-mono text-indigo-300 flex items-center gap-2">
+                        <Terminal className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+                        <span>{exp.impactHighlight}</span>
+                      </div>
+
+                      {/* Detailed Bullet Points */}
+                      <div className="space-y-3 mb-6">
+                        {exp.achievements.map((item, idx) => (
+                          <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-300 font-sans leading-relaxed">
+                            <ChevronRight className="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5" />
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Monospace Tech Badges */}
+                      <div className="pt-4 border-t border-white/[0.08]">
+                        <p className="text-[11px] font-mono text-zinc-500 mb-2 uppercase">
+                          Stack Utilized:
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {exp.techStack.map((tech) => (
+                            <span
+                              key={tech}
+                              className="px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/[0.08] text-[11px] font-mono text-zinc-300 hover:text-white hover:border-indigo-500/40 transition-colors"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}

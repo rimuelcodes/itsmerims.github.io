@@ -10,49 +10,47 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'data-bg': '#0f172a',
-        'data-card': '#1a1f35',
-        'data-border': '#334155',
-        'data-text-secondary': '#94a3b8',
-        'cyber-blue': '#0ea5e9',
-        'electric-purple': '#a78bfa',
-        'accent-glow': '#06b6d4',
-      },
-      animation: {
-        fadeIn: "fadeIn 1.5s",
-        slideInUp: "slideInUp 0.8s ease-out",
-        glow: "glow 3s ease-in-out infinite",
-      },
-      animationDelay: {
-        0: "0s",
-        2: "0.2s",
-        4: "0.4s",
-        6: "0.6s",
-        8: "0.8s",
-      },
-      keyframes: {
-        fadeIn: {
-          from: { opacity: 0 },
-          to: { opacity: 1 },
+        obsidian: {
+          DEFAULT: '#060608',
+          canvas: '#060608',
+          elevated: '#0E0E12',
+          surface: '#14141B',
+          border: 'rgba(255, 255, 255, 0.08)',
+          'border-active': 'rgba(99, 102, 241, 0.45)',
         },
-        slideInUp: {
-          from: {
-            opacity: 0,
-            transform: 'translateY(20px)',
-          },
-          to: {
-            opacity: 1,
-            transform: 'translateY(0)',
-          },
+        indigo: {
+          electric: '#6366F1',
         },
-        glow: {
-          '0%, 100%': {
-            boxShadow: '0 0 5px rgba(14, 165, 233, 0.3)',
-          },
-          '50%': {
-            boxShadow: '0 0 20px rgba(14, 165, 233, 0.8)',
-          },
+        cyan: {
+          pulse: '#22D3EE',
         },
+        emerald: {
+          telemetry: '#10B981',
+        },
+        text: {
+          primary: '#FAFAFA',
+          secondary: '#A1A1AA',
+          mono: '#52525B',
+        },
+        // Backwards compatibility mappings
+        'data-bg': '#060608',
+        'data-card': '#0E0E12',
+        'data-border': 'rgba(255, 255, 255, 0.08)',
+        'data-text-secondary': '#A1A1AA',
+        'cyber-blue': '#22D3EE',
+        'electric-purple': '#6366F1',
+      },
+      fontFamily: {
+        display: ['var(--font-space-grotesk)', 'sans-serif'],
+        sans: ['var(--font-jakarta)', 'sans-serif'],
+        mono: ['var(--font-jetbrains)', 'monospace'],
+      },
+      backgroundImage: {
+        'grid-pattern': "linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)",
+      },
+      backgroundSize: {
+        'grid-sm': '32px 32px',
+        'grid-md': '48px 48px',
       },
     },
   },

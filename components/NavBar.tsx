@@ -1,98 +1,152 @@
 "use client"
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-import { Link } from "react-scroll/modules"
-import { useTheme } from "next-themes"
-import { RiMoonFill, RiSunFill } from "react-icons/ri";
-import { FiMenu } from "react-icons/fi";
-import { IoCloseOutline } from "react-icons/io5";
-import Image from 'next/image'
 
-interface NavItem {
-    label: string
-    page: string
-}
+import React, { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Menu, X, FileText, ArrowUpRight } from "lucide-react"
 
-const Nav_Items: Array<NavItem> = [
-    {
-        label: "Home",
-        page: "home"
-    },
-    {
-        label: "About",
-        page: "about"
-    },
-    {
-        label: "Experience",
-        page: "experience"
-    },
-    {
-        label: "Skills",
-        page: "skills"
-    },
-    {
-        label: "Projects",
-        page: "projects"
-    }
+const NAV_ITEMS = [
+  { label: "Home", href: "#home" },
+  { label: "About", href: "#about" },
+  { label: "Experience", href: "#experience" },
+  { label: "Architecture", href: "#architecture" },
+  { label: "Projects", href: "#projects" },
 ]
 
-const NavBar = () => {
-    const { systemTheme, theme, setTheme } = useTheme()
-    const currentTheme = theme === "system" ? systemTheme : theme
-    const [navbar, setNavBar] = useState(false)
+export default function NavBar() {
+  const [activeSection, setActiveSection] = useState("home")
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-    return (
-        <header className='w-screen mx-auto px-4 fixed bg-gradient-to-b from-data-bg/95 to-data-bg/90 backdrop-blur-sm top-0 z-50 sm:px-20 border-b border-data-border/50'>
-            <div className='justify-between md:items-center md:flex'>
-                <div>
-                    <div className='flex items-center justify-between'>
-                        <div className='md:block md:p-0 py-3'>
-                            <Link
-                                to="home"
-                                className="cursor-pointer font-bold text-xl text-cyber-blue hover:text-cyan-400 transition-colors"
-                                activeClass="active"
-                                spy={true}
-                                smooth={true}
-                                offset={-100}
-                                duration={500}
-                            >
-                                Rims
-                            </Link>
-                        </div>
-                        <div className='md:hidden'>
-                            <button data-collapse-toggle="navbar-default" type="button" className="inline-flex items-center p-2 ml-3 text-sm rounded-lg md:hidden focus:outline-none focus:ring-2 text-cyber-blue hover:bg-data-card focus:ring-cyber-blue" aria-controls="navbar-default" aria-expanded="false" onClick={() => setNavBar(!navbar)}>
-                                {navbar ? <IoCloseOutline size={30} /> : <FiMenu size={30} />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div id="navbar-default" className={`w-full md:w-auto flex-1 justify-self-center pb-3 md:block md:pb-0 md:mt-0 ${navbar ? "block" : "hidden"}`}>
-                        <div className="flex items-center justify-center flex-col p-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0">
-                            {Nav_Items.map((item, index) => {
-                                return <Link
-                                    key={index}
-                                    to={item.page}
-                                    className="cursor-pointer rounded text-data-text-secondary hover:text-cyber-blue block lg:inline-block p-3 transition-colors font-semibold"
-                                    activeClass="active"
-                                    spy={true}
-                                    smooth={true}
-                                    offset={-100}
-                                    duration={500}
-                                    onClick={() => setNavBar(!navbar)}
-                                >{item.label}</Link>
-                            })}
-                            <div className='py-3'>
-                                <a href="/Profile.pdf" target="_blank" className='bg-cyber-blue hover:bg-cyan-600 text-data-bg font-semibold py-2 px-4 border border-transparent rounded transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/50 uppercase text-xs outline-none focus:outline-none mr-1 mb-1 ease-linear'>Resume</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  // Track scroll position to update active section & shadow
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 40)
+
+      const sections = NAV_ITEMS.map((item) => item.href.substring(1))
+      const scrollPos = window.scrollY + 200
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i])
+        if (el && el.offsetTop <= scrollPos) {
+          setActiveSection(sections[i])
+          break
+        }
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  const scrollTo = (href: string) => {
+    setMobileMenuOpen(false)
+    const id = href.replace("#", "")
+    const el = document.getElementById(id)
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+
+  return (
+    <header className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+      <nav
+        className={`pointer-events-auto relative flex items-center justify-between gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-full border transition-all duration-300 ${
+          isScrolled
+            ? "bg-[#0E0E12]/80 border-white/10 backdrop-blur-xl shadow-2xl shadow-black/80"
+            : "bg-[#0E0E12]/60 border-white/[0.08] backdrop-blur-md"
+        }`}
+      >
+        {/* Brand Monogram */}
+        <button
+          onClick={() => scrollTo("#home")}
+          className="flex items-center gap-2 px-3 py-1 text-sm font-mono font-bold tracking-tight text-white hover:text-indigo-400 transition-colors"
+        >
+          <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+          <span>RIMS.DEV</span>
+        </button>
+
+        {/* Desktop Navigation Links */}
+        <div className="hidden md:flex items-center gap-1">
+          {NAV_ITEMS.map((item) => {
+            const isActive = activeSection === item.href.substring(1)
+            return (
+              <button
+                key={item.label}
+                onClick={() => scrollTo(item.href)}
+                className={`relative px-4 py-1.5 text-xs font-mono uppercase tracking-wider transition-colors duration-200 ${
+                  isActive ? "text-white font-semibold" : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="active-nav-pill"
+                    className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/10"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">{item.label}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Right CTA: Resume Button */}
+        <div className="flex items-center gap-2">
+          <a
+            href="/Profile.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono font-medium text-white bg-indigo-600/90 hover:bg-indigo-500 border border-indigo-400/30 transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/25 active:scale-95"
+          >
+            <span>RESUME</span>
+            <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </a>
+
+          {/* Mobile hamburger toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-1.5 text-zinc-400 hover:text-white transition-colors"
+            aria-label="Toggle Navigation"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Drawer */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="pointer-events-auto absolute top-20 left-4 right-4 p-4 rounded-2xl bg-[#0E0E12]/95 border border-white/10 backdrop-blur-2xl shadow-2xl flex flex-col gap-2 md:hidden"
+          >
+            {NAV_ITEMS.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => scrollTo(item.href)}
+                className="w-full text-left px-4 py-2.5 rounded-xl font-mono text-sm text-zinc-300 hover:text-white hover:bg-white/[0.05] transition-all flex items-center justify-between"
+              >
+                <span>{item.label}</span>
+                <span className="text-zinc-600 text-xs">→</span>
+              </button>
+            ))}
+            <div className="pt-2 mt-2 border-t border-white/10">
+              <a
+                href="/Profile.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 font-mono text-xs font-semibold text-white"
+              >
+                <FileText className="w-4 h-4" />
+                <span>DOWNLOAD RESUME (PDF)</span>
+              </a>
             </div>
-        </header>
-    )
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
+  )
 }
-
-NavBar.propTypes = {}
-
-export default NavBar
